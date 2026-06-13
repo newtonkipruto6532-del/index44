@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Airdrop Bot 🪙 | Claim $5 BTC Free</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --btc: #f7931a;
+    --btc-dark: #c97310;
+    --btc-glow: rgba(247,147,26,0.25);
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: rgba(247,147,26,0.15);
+    --text: #f0f0f0;
+    --muted: #888;
+    --green: #00d68f;
+    --red: #ff4d4d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* ANIMATED BG */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(247,147,26,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(247,147,26,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--btc);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 7px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner { display: inline-block; animation: ticker 30s linear infinite; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* HEADER */
+  header {
+    position: relative; z-index: 10;
+    padding: 20px 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--btc);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 0 20px var(--btc-glow);
+  }
+  .logo-text { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; }
+  .logo-text span { color: var(--btc); }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,214,143,0.1);
+    border: 1px solid rgba(0,214,143,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.75rem; font-weight: 600; color: var(--green);
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 60px 5% 40px;
+  }
+  .airdrop-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(247,147,26,0.1);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 7px 18px;
+    font-size: 0.8rem; font-weight: 600; color: var(--btc);
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s ease both;
+  }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 7vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .hero h1 .highlight { color: var(--btc); text-shadow: 0 0 40px var(--btc-glow); }
+
+  .hero-sub {
+    color: var(--muted); font-size: 1rem; max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  /* BTC AMOUNT DISPLAY */
+  .btc-display {
+    display: inline-flex; flex-direction: column; align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 40px;
+    margin-bottom: 36px;
+    box-shadow: 0 0 60px rgba(247,147,26,0.08);
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btc-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
+  .btc-amount { font-family: 'Space Mono', monospace; font-size: 2.8rem; font-weight: 700; color: var(--btc); line-height: 1; }
+  .btc-usd { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+  .btc-usd span { color: var(--green); font-weight: 600; }
+
+  /* STEPS BOT FLOW */
+  .steps-wrapper {
+    position: relative; z-index: 10;
+    max-width: 540px; margin: 0 auto;
+    padding: 0 5% 60px;
+  }
+
+  /* STEP CARD */
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+    position: relative;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .step-card.active { border-color: var(--btc); box-shadow: 0 0 30px rgba(247,147,26,0.12); }
+  .step-card.done { border-color: rgba(0,214,143,0.3); }
+  .step-card.locked { opacity: 0.4; pointer-events: none; }
+
+  .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem; font-weight: 700; color: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .step-card.active .step-num { background: var(--btc); border-color: var(--btc); color: #000; }
+  .step-card.done .step-num { background: var(--green); border-color: var(--green); color: #000; }
+  .step-card.done .step-num::after { content: '✓'; }
+
+  .step-title { font-size: 1rem; font-weight: 700; }
+  .step-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; border: none;
+    transition: transform 0.15s, opacity 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn-btc { background: var(--btc); color: #000; box-shadow: 0 4px 20px rgba(247,147,26,0.3); }
+  .btn-btc:hover { box-shadow: 0 6px 30px rgba(247,147,26,0.45); }
+  .btn-outline { background: transparent; color: var(--btc); border: 1px solid var(--btc); }
+  .btn-outline:hover { background: rgba(247,147,26,0.08); }
+  .btn-green { background: var(--green); color: #000; box-shadow: 0 4px 20px rgba(0,214,143,0.25); }
+  .btn-done { background: rgba(0,214,143,0.1); color: var(--green); border: 1px solid rgba(0,214,143,0.3); cursor: default; }
+  .btn-done:hover { transform: none; }
+  .btn-tg { background: #229ED9; color: #fff; }
+  .btn-tw { background: #1DA1F2; color: #fff; }
+  .btn-monetag { background: linear-gradient(135deg, #6c3fc5 0%, #a855f7 100%); color: #fff; }
+
+  /* BALANCE CARD (hidden until step 3 done) */
+  #balanceSection {
+    display: none;
+    background: var(--surface);
+    border: 1px solid rgba(0,214,143,0.3);
+    border-radius: 20px;
+    padding: 32px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 60px rgba(0,214,143,0.08);
+    text-align: center;
+  }
+  #balanceSection.show { display: block; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  @keyframes popIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+
+  .balance-header { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px; }
+  .balance-crypto { font-family: 'Space Mono', monospace; font-size: 2.4rem; font-weight: 700; color: var(--btc); margin-bottom: 4px; }
+  .balance-usd { font-size: 1rem; color: var(--green); font-weight: 600; margin-bottom: 24px; }
+  .balance-divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  .wallet-input-wrapper { position: relative; margin-bottom: 14px; }
+  .wallet-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .wallet-input:focus { border-color: var(--btc); }
+  .wallet-input::placeholder { color: var(--muted); }
+  .wallet-label { font-size: 0.78rem; color: var(--muted); text-align: left; margin-bottom: 8px; display: block; }
+
+  /* NOTIFICATION TOAST */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-size: 0.88rem;
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+    max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: rgba(0,214,143,0.4); color: var(--green); }
+  .toast.error { border-color: rgba(255,77,77,0.4); color: var(--red); }
+
+  /* STATS BAR */
+  .stats-bar {
+    position: relative; z-index: 10;
+    display: flex; justify-content: center; gap: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .stat-item { flex: 1; text-align: center; padding: 16px 10px; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-val { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--btc); }
+  .stat-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 3px; }
+
+  /* WITHDRAW MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 400px; width: 90%;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .modal h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+  .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .modal-fee { background: rgba(255,77,77,0.08); border: 1px solid rgba(255,77,77,0.2); border-radius: 10px; padding: 14px; margin-bottom: 20px; font-size: 0.85rem; color: #ff9999; line-height: 1.6; }
+  .modal-close { background: var(--surface2); color: var(--muted); border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; margin-top: 8px; width: 100%; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 30px 5%; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); position: relative; z-index: 10; }
+  footer a { color: var(--btc); text-decoration: none; }
+
+  @media (max-width: 480px) {
+    .btc-amount { font-size: 2rem; }
+    .stats-bar { flex-wrap: wrap; }
+    .stat-item { flex: 1 1 33%; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    &nbsp;🪙 BTC/USD: $67,432.18 &nbsp;+2.4% &nbsp;|&nbsp; 🔥 AIRDROP LIVE: 2,341 claimed today &nbsp;|&nbsp; ⏳ Limited slots remaining &nbsp;|&nbsp; 💸 Minimum claim: $5.00 in BTC &nbsp;|&nbsp; 🌍 Open worldwide &nbsp;|&nbsp;
+    &nbsp;🪙 BTC/USD: $67,432.18 &nbsp;+2.4% &nbsp;|&nbsp; 🔥 AIRDROP LIVE: 2,341 claimed today &nbsp;|&nbsp; ⏳ Limited slots remaining &nbsp;|&nbsp; 💸 Minimum claim: $5.00 in BTC &nbsp;|&nbsp; 🌍 Open worldwide &nbsp;|&nbsp;
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">₿</div>
+    <div class="logo-text">Bitcoin <span>Airdrop</span> Bot 🪙</div>
+  </div>
+  <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+</header>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-val">2,341</div><div class="stat-lbl">Claimed Today</div></div>
+  <div class="stat-item"><div class="stat-val">$5.00</div><div class="stat-lbl">Per Claim</div></div>
+  <div class="stat-item"><div class="stat-val">0.000074</div><div class="stat-lbl">BTC Rate</div></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="airdrop-badge">🪂 Bitcoin Airdrop 2025 &nbsp;·&nbsp; Limited Slots</div>
+  <h1>Claim Your Free<br><span class="highlight">$5 Bitcoin 🪙</span></h1>
+  <p class="hero-sub">Complete 3 quick tasks below and instantly receive $5 worth of Bitcoin to your wallet. 100% free — no investment needed. 🚀</p>
+
+  <div class="btc-display">
+    <div class="btc-label">🎁 Your Airdrop Reward</div>
+    <div class="btc-amount">0.000074 BTC</div>
+    <div class="btc-usd">≈ <span>$5.00 USD</span> at current rate</div>
+  </div>
+</div>
+
+<!-- STEPS -->
+<div class="steps-wrapper">
+
+  <!-- STEP 1: Telegram -->
+  <div class="step-card active" id="step1">
+    <div class="step-header">
+      <div class="step-num" id="num1">1</div>
+      <div class="step-title">📱 Join Our Telegram Channel</div>
+    </div>
+    <p class="step-desc">Join the official <strong>linkpadearning</strong> Telegram channel to stay updated on all airdrops, crypto tips and exclusive earning opportunities. 🔔</p>
+    <button class="btn btn-tg" onclick="openAndComplete('https://t.me/linkpadearning', 1)">
+      📲 Join @linkpadearning on Telegram
+    </button>
+  </div>
+
+  <!-- STEP 2: Twitter -->
+  <div class="step-card locked" id="step2">
+    <div class="step-header">
+      <div class="step-num" id="num2">2</div>
+      <div class="step-title">🐦 Follow on Twitter / X</div>
+    </div>
+    <p class="step-desc">Follow <strong>@kipruto64825</strong> on Twitter/X for live airdrop alerts, crypto news and giveaway announcements. ✅</p>
+    <button class="btn btn-tw" onclick="openAndComplete('https://x.com/kipruto64825', 2)">
+      🐦 Follow @kipruto64825 on X
+    </button>
+  </div>
+
+  <!-- STEP 3: Monetag Signup -->
+  <div class="step-card locked" id="step3">
+    <div class="step-header">
+      <div class="step-num" id="num3">3</div>
+      <div class="step-title">💜 Activate Your Reward Account</div>
+    </div>
+    <p class="step-desc">Sign up on <strong>Monetag</strong> using the link below to activate your reward wallet. This is where your <strong>$5 BTC</strong> will be credited. 💸 It's completely free!</p>
+    <button class="btn btn-monetag" onclick="openAndComplete('https://monetag.com/?ref_id=uZVf', 3)">
+      🚀 Activate Reward Account on Monetag
+    </button>
+  </div>
+
+  <!-- BALANCE SECTION (shows after all steps done) -->
+  <div id="balanceSection">
+    <div class="balance-header">🎉 Your Bitcoin Balance</div>
+    <div class="balance-crypto">0.000074 BTC</div>
+    <div class="balance-usd">≈ $5.00 USD 💰</div>
+
+    <div class="balance-divider"></div>
+
+    <label class="wallet-label">🔐 Enter Your Bitcoin Wallet Address</label>
+    <div class="wallet-input-wrapper">
+      <input type="text" class="wallet-input" id="walletInput" placeholder="bc1q... or 1A1zP1... (BTC address)" />
+    </div>
+
+    <button class="btn btn-btc" onclick="openWithdraw()" style="margin-bottom:10px;">
+      💸 Withdraw Reward
+    </button>
+    <button class="btn btn-outline" onclick="checkBalance()">
+      👁️ See Balance
+    </button>
+  </div>
+
+</div>
+
+<!-- WITHDRAW MODAL -->
+<div class="modal-overlay" id="withdrawModal">
+  <div class="modal">
+    <h3>⚠️ Withdrawal Notice</h3>
+    <p>Your <strong style="color:var(--btc);">0.000074 BTC ($5.00)</strong> is ready to be sent to your wallet address.</p>
+    <div class="modal-fee">
+      🔔 <strong>Network Fee Required:</strong> Bitcoin network requires a small gas fee of <strong>$0.50 – $2.00</strong> to process your withdrawal. This covers miner fees and is standard for all BTC transactions.<br><br>
+      💡 <strong>Tip:</strong> Sign up & earn on Monetag to cover your fee instantly — your $5 reward will be sent immediately after fee confirmation.
+    </div>
+    <a href="https://monetag.com/?ref_id=uZVf" target="_blank" rel="noopener" class="btn btn-monetag" style="margin-bottom:8px;">
+      💜 Earn Fee Credits on Monetag
+    </a>
+    <button class="modal-close" onclick="closeWithdraw()">✕ Close</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <p>🪙 Bitcoin Airdrop Bot &nbsp;·&nbsp; Powered by <a href="https://monetag.com/?ref_id=uZVf" target="_blank">Monetag</a></p>
+  <p style="margin-top:6px;">Join <a href="https://t.me/linkpadearning" target="_blank">@linkpadearning</a> on Telegram &nbsp;·&nbsp; Follow <a href="https://x.com/kipruto64825" target="_blank">@kipruto64825</a> on X</p>
+</footer>
+
+<script>
+  const steps = [false, false, false];
+
+  function openAndComplete(url, n) {
+    window.open(url, '_blank');
+    completeStep(n);
+  }
+
+  function completeStep(n) {
+    const idx = n - 1;
+    // Mark step as done after a short delay (simulating user action)
+    setTimeout(() => {
+      steps[idx] = true;
+      const card = document.getElementById('step' + n);
+      card.classList.remove('active');
+      card.classList.add('done');
+
+      // Update number to checkmark visual (done via CSS ::after on .done)
+      const numEl = document.getElementById('num' + n);
+      numEl.textContent = '✓';
+
+      // Replace button with done state
+      const btn = card.querySelector('.btn');
+      btn.className = 'btn btn-done';
+      btn.textContent = '✅ Completed';
+
+      // Unlock next step
+      if (n < 3) {
+        const nextCard = document.getElementById('step' + (n + 1));
+        nextCard.classList.remove('locked');
+        nextCard.classList.add('active');
+        showToast('✅ Step ' + n + ' done! Complete step ' + (n + 1) + ' to continue.', 'success');
+      }
+
+      // All done — show balance
+      if (steps[0] && steps[1] && steps[2]) {
+        setTimeout(() => {
+          document.getElementById('balanceSection').classList.add('show');
+          showToast('🎉 All steps complete! Your $5 BTC is ready to claim!', 'success');
+        }, 600);
+      }
+    }, 800);
+  }
+
+  function checkBalance() {
+    const wallet = document.getElementById('walletInput').value.trim();
+    if (!wallet) {
+      showToast('⚠️ Please enter your BTC wallet address first.', 'error');
+      return;
+    }
+    showToast('💰 Balance confirmed: 0.000074 BTC ($5.00 USD) ✅', 'success');
+  }
+
+  function openWithdraw() {
+    const wallet = document.getElementById('walletInput').value.trim();
+    if (!wallet) {
+      showToast('⚠️ Enter your Bitcoin wallet address to withdraw.', 'error');
+      return;
+    }
+    document.getElementById('withdrawModal').classList.add('show');
+  }
+
+  function closeWithdraw() {
+    document.getElementById('withdrawModal').classList.remove('show');
+  }
+
+  function showToast(msg, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast ' + (type || '');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // Close modal on overlay click
+  document.getElementById('withdrawModal').addEventListener('click', function(e) {
+    if (e.target === this) closeWithdraw();
+  });
+</script>
+</body>
+</html>
